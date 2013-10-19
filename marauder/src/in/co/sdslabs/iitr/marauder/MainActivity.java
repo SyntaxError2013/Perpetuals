@@ -25,6 +25,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -154,6 +166,34 @@ public class MainActivity extends Activity implements OnClickListener {
 			String s = longitude + "\n" + latitude
 					+ "\n\nMy Currrent City is: " + cityName;
 			editLocation.setText(s);
+			try {
+				sendData(s);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				Toast.makeText(getBaseContext(), "Data sent",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		private void sendData(String s) throws ClientProtocolException,
+				IOException {
+			// TODO Auto-generated method stub
+			String serverUrl = "http://marauder-iitr.appspot.com";
+			int TIMEOUT_MILLISEC = 10000; // = 10 seconds
+			HttpParams httpParams = new BasicHttpParams();
+			HttpConnectionParams.setConnectionTimeout(httpParams,
+					TIMEOUT_MILLISEC);
+			HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT_MILLISEC);
+			HttpClient client = new DefaultHttpClient(httpParams);
+
+			HttpPost request = new HttpPost(serverUrl);
+			request.setEntity(new ByteArrayEntity(s.getBytes("UTF8")));
+			HttpResponse response = client.execute(request);
 		}
 
 		@Override
